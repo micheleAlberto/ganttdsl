@@ -31,6 +31,9 @@ class Task:
 
     def __eq__(self, other):
         return isinstance(other, Task) and self.name == other.name
+    
+    def minimum_task_duration(self, max_available_engineers:int) -> int:
+        return self.effort // min(max_available_engineers, self.parallelization_factor)
 
 
 class Team:
@@ -39,7 +42,6 @@ class Team:
             raise ValueError("Team size must be a positive integer")
         self.name = name
         self.size = size
-
 
 class PlannedTask:
     def __init__(self, task: Task, start_day: int, end_day: int):
@@ -97,43 +99,31 @@ class Scheduler:
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
         raise NotImplementedError("Subclasses must implement the scheduling algorithm")
 
-    def calculate_absolute_dates(self, start_date: date, planned_task: PlannedTask) -> ScheduledTask:
+    def calculate_absolute_dates(self, start_date: date, total_days_of_work:int) -> dict[int, date]:
+        absolute_dates = {}
         current_date = start_date
-        workdays_passed = 0
-
-        # Calculate start_date
-        while workdays_passed < planned_task.start_day:
-            current_date += timedelta(days=1)
+        days_of_work = 0
+        while days_of_work < total_days_of_work:
             if self.workday_filter(current_date):
-                workdays_passed += 1
-        start_date_absolute = current_date
-
-        # Calculate end_date
-        while workdays_passed < planned_task.end_day:
+                days_of_work += 1
+            absolute_dates[days_of_work] = current_date
             current_date += timedelta(days=1)
-            if self.workday_filter(current_date):
-                workdays_passed += 1
-        end_date_absolute = current_date
-
-        return ScheduledTask(
-            task=planned_task.task,
-            start_date=start_date_absolute,
-            end_date=end_date_absolute
-        )
+        return absolute_dates
+        
 
 
 class CriticalPathScheduler(Scheduler):
-    def schedule(self, tasks, team, start_date):
+    def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
         # Detect circular dependencies
         if self.has_circular_dependencies(tasks):
             raise ValueError("Circular dependencies detected in tasks")
 
         # Topologically sort tasks
-        sorted_tasks = self.topological_sort(tasks)
+        sorted_tasks = self.topological_sort(tasks, team.size)
 
-        planned_tasks = []
-        task_start_times = {}
-        task_end_times = {}
+        planned_tasks: List[ScheduledTask] = []
+        task_start_times: dict[Task, int] = {}
+        task_end_times: dict[Task, int] = {}
         available_engineers = team.size
 
         for task in sorted_tasks:
@@ -149,7 +139,7 @@ class CriticalPathScheduler(Scheduler):
 
             # Convert start and end days to dates
             task_start_date = start_date + timedelta(days=start_day)
-            task_end_date = start_date + timedelta(days=end_day)
+            task_end_date: date = start_date + timedelta(days=end_day - 1)  # Adjust end date calculation
 
             # Update task start and end times
             task_start_times[task] = start_day
@@ -161,35 +151,7 @@ class CriticalPathScheduler(Scheduler):
 
         return Plan(planned_tasks)
 
-    def topological_sort(self, tasks):
-        from collections import defaultdict, deque
-
-        # Create a graph and in-degree count
-        graph = defaultdict(list)
-        in_degree = {task: 0 for task in tasks}
-
-        for task in tasks:
-            for dep in task.dependencies:
-                graph[dep].append(task)
-                in_degree[task] += 1
-
-        # Initialize a queue with tasks that have no dependencies
-        queue = deque([task for task in tasks if in_degree[task] == 0])
-        sorted_tasks = []
-
-        while queue:
-            current_task = queue.popleft()
-            sorted_tasks.append(current_task)
-
-            for neighbor in graph[current_task]:
-                in_degree[neighbor] -= 1
-                if in_degree[neighbor] == 0:
-                    queue.append(neighbor)
-
-        if len(sorted_tasks) != len(tasks):
-            raise ValueError("Circular dependency detected")
-
-        return sorted_tasks
+    
 
     @staticmethod
     def has_circular_dependencies(tasks: List[Task]) -> bool:
