@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import List, Set, Optional, Callable
+from typing import List, Set, Optional, Callable, Dict
 
 
 class Task:
@@ -7,6 +7,8 @@ class Task:
                  effort: int, parallelization_factor: int, dependencies: Optional[Set["Task"]] = None):
         if not name:
             raise ValueError("Task name must not be empty")
+        if parallelization_factor <= 0:
+            raise ValueError("Parallelization factor must be a positive integer")
         self.name = name
         self.description = description
         self.references = references
@@ -54,10 +56,11 @@ class PlannedTask:
 
 
 class ScheduledTask:
-    def __init__(self, task: Task, start_date: date, end_date: date):
+    def __init__(self, task: Task, start_date: date, end_date: date, daily_engineer_allocation: Dict[date, int]):
         self.task = task
         self.start_date = start_date
         self.end_date = end_date
+        self.daily_engineer_allocation = daily_engineer_allocation
 
     def __repr__(self):
         return f"ScheduledTask(task={self.task.name}, start_date={self.start_date}, end_date={self.end_date})"
@@ -80,6 +83,9 @@ class Plan:
             output.append(f"**Dependencies:** {', '.join(dep.name for dep in task.dependencies)}")
             output.append(f"**Planned Start Date:** {scheduled_task.start_date}")
             output.append(f"**Planned End Date:** {scheduled_task.end_date}")
+            output.append(f"**Daily Engineer Allocation:**")
+            for day, engineers in scheduled_task.daily_engineer_allocation.items():
+                output.append(f"  - {day}: {engineers} engineers")
             output.append("\n")
         return "\n".join(output)
 
@@ -114,39 +120,56 @@ class Scheduler:
 
 class CriticalPathScheduler(Scheduler):
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
-        # Detect circular dependencies
-        if self.has_circular_dependencies(tasks):
-            raise ValueError("Circular dependencies detected in tasks")
-
-        # Topologically sort tasks
-        sorted_tasks = self.topological_sort(tasks, team.size)
-
-        planned_tasks: List[ScheduledTask] = []
-        task_start_times: dict[Task, int] = {}
-        task_end_times: dict[Task, int] = {}
+        # Initialize variables
+        planned_tasks = []
+        task_start_times = {}
+        task_end_times = {}
         available_engineers = team.size
+        current_day = 0
 
-        for task in sorted_tasks:
-            # Calculate start time based on dependencies
-            if task.dependencies:
-                start_day = max(task_end_times[dep] for dep in task.dependencies)
-            else:
-                start_day = 0
+        # Create a dictionary to track the remaining effort for each task
+        remaining_effort = {task: task.effort for task in tasks}
 
-            # Calculate end time based on effort and parallelization factor
-            duration = (task.effort + task.parallelization_factor - 1) // task.parallelization_factor
-            end_day = start_day + duration
+        # Create a dictionary to track the daily engineer allocation for each task
+        daily_engineer_allocation = {task: {} for task in tasks}
 
-            # Convert start and end days to dates
-            task_start_date = start_date + timedelta(days=start_day)
-            task_end_date: date = start_date + timedelta(days=end_day - 1)  # Adjust end date calculation
+        # Create a set to track completed tasks
+        completed_tasks = set()
 
-            # Update task start and end times
-            task_start_times[task] = start_day
-            task_end_times[task] = end_day
+        while remaining_effort:
+            # Allocate engineers to tasks each day
+            for task in tasks:
+                if task in completed_tasks:
+                    continue
 
-            # Create a scheduled task and add it to the plan
-            scheduled_task = ScheduledTask(task, task_start_date, task_end_date)
+                # Check if all dependencies are completed
+                if all(dep in completed_tasks for dep in task.dependencies):
+                    # Allocate engineers to the task
+                    engineers_allocated = min(task.parallelization_factor, available_engineers, remaining_effort[task])
+                    if engineers_allocated > 0:
+                        daily_engineer_allocation[task][start_date + timedelta(days=current_day)] = engineers_allocated
+                        remaining_effort[task] -= engineers_allocated
+                        available_engineers -= engineers_allocated
+
+                        # If the task is completed, mark it as completed and reset available engineers
+                        if remaining_effort[task] <= 0:
+                            completed_tasks.add(task)
+                            available_engineers = team.size
+
+            # Move to the next day
+            current_day += 1
+            available_engineers = team.size
+
+        # Create ScheduledTask objects
+        for task in tasks:
+            start_day = min(daily_engineer_allocation[task].keys())
+            end_day = max(daily_engineer_allocation[task].keys())
+            scheduled_task = ScheduledTask(
+                task,
+                start_day,
+                end_day,
+                daily_engineer_allocation[task]
+            )
             planned_tasks.append(scheduled_task)
 
         return Plan(planned_tasks)
