@@ -17,3 +17,16 @@ build-backend = "hatchling.build"
 
 [tool.pdm]
 distribution = true
+
+[dependency-groups]
+dev = [
+    "pdbpp>=0.10.3",
+    "pytest>=8.3.4",
+    "ipython>=8.30.0",
+]
+
+[tool.pdm.scripts]
+lint = "flake8"
+test = "pytest"
+debug = "pytest --pdb"
+all = {composite = ["lint", "test"]}
