@@ -29,7 +29,7 @@ Concrete schedulers will be implemented as subclasses of Scheduler.
 
 A team specification is just the team name and the number of engineers.
 * class Team
-A plan contains Planned Tasks : each plannned task refer to a task that was provided to the scheduler and tracks a planned start day and a planned end day.
+A plan contains Planned Tasks : each plannned task refer to a task that was provided to the scheduler and tracks how many engineers were allocated on each day.
 Days can be tracked both as integers of working days from the start date of the plan (day=0) or as absolute dates (ie datetime.date) and no work should be scheduled on weekends.
 * class PlannedTask 
 
@@ -99,58 +99,112 @@ Q : Should the Markdown view of the plan include:
 All of the above.
 
 
-### Usage examples
-Creating Tasks "Prototype Design" and "Build Prototype".
-Building the prototype depends on the first task.
-```python 
-from datetime import date
-from ganttdsl import Task
 
-# Create tasks
+
+## Design Document
+
+## Overview
+
+The scheduling system is designed to manage and allocate engineering resources for tasks in a project. The system ensures that tasks are scheduled based on their dependencies and the availability of engineering resources.
+
+## Classes
+
+### Task
+
+Represents a task in the project.
+
+- `name: str`
+- `description: str`
+- `references: List[str]`
+- `point_of_contact: str`
+- `effort: int` (in engineer-days)
+- `parallelization_factor: int`
+- `dependencies: Set[Task]`
+
+### ScheduledTask
+
+Represents a scheduled task with start and end dates, and the allocation of engineers on each day.
+
+- `task: Task`
+- `start_date: int`
+- `end_date: int`
+- `daily_engineer_allocation: Dict[int, int]` (new attribute to track engineer allocation per day. keys are the date indexes and the values are the number of engineers working on the project on a given date)
+
+### Plan
+
+Represents the plan for the project, containing all scheduled tasks.
+
+- `scheduled_tasks: List[ScheduledTask]`
+
+#### Methods
+
+- `get_markdown_view() -> str`: Returns a markdown representation of the plan.
+- `get_gantt_chart() -> str`: Returns a Gantt chart representation of the plan.
+
+### Scheduler
+
+Base class for scheduling tasks.
+
+#### Methods
+
+- `has_circular_dependencies(tasks: List[Task]) -> bool`: Checks for circular dependencies among tasks.
+
+### CriticalPathScheduler
+
+Inherits from `Scheduler` and implements the scheduling logic.
+
+#### Methods
+
+- `schedule(tasks: List[Task], team: Team, start_date: date) -> Plan`: Schedules the tasks based on dependencies and resource availability.
+
+### Team
+
+Represents a team of engineers.
+
+- `name: str`
+- `size: int`
+
+## Scheduling Logic
+
+The `CriticalPathScheduler` class schedules tasks based on their dependencies and the availability of engineering resources. The scheduling process involves the following steps:
+
+1. **Detect Circular Dependencies**: Ensure there are no circular dependencies among tasks.
+2. **Topological Sort**: Sort tasks based on their dependencies.
+3. **Calculate Duration**: Calculate the duration of each task based on its effort and parallelization factor.
+4. **Allocate Resources**: Allocate engineers to the task day by day, ensuring that the total number of engineers does not exceed the team's size.
+5. **Track Engineer Allocation**: Track the allocation of engineers for each day in the `daily_engineer_allocation` attribute of the `ScheduledTask` class.
+
+### Resource Allocation
+
+The `schedule` method in the `CriticalPathScheduler` class allocates resources as follows:
+
+1. Calculate the start time for each task based on its dependencies.
+2. Calculate the duration of each task based on its effort and parallelization factor.
+3. Allocate engineers to the task day by day, ensuring that the total number of engineers does not exceed the team's size.
+4. Track the allocation of engineers for each day in the `daily_engineer_allocation` attribute of the `ScheduledTask` class.
+
+## Example
+
+```python
 task_a = Task(
     name="Prototype Design",
-    description="Design the prototype with detailed requirements.",
-    references=["https://example.com/design-doc"],
+    description="Design the prototype.",
+    references=[],
     point_of_contact="Engineer A",
-    effort=10,  # Effort in engineer-days
-    parallelization_factor=2  # Max engineers that can work on this
+    effort=10,
+    parallelization_factor=2
 )
-
 task_b = Task(
     name="Build Prototype",
-    description="Build the prototype as per the design specifications.",
-    references=["https://example.com/build-doc"],
+    description="Build the prototype, depends on Task A.",
+    references=[],
     point_of_contact="Engineer B",
     effort=8,
-    parallelization_factor=1,
+    parallelization_factor=4,
     dependencies={task_a}
 )
-```
-
-Creating a team
-```python
-from ganttdsl import Team
-
 team = Team(name="Engineering Team", size=3)
-```
-
-Scheduling Tasks
-```python
-from ganttdsl import CriticalPathScheduler
-
 scheduler = CriticalPathScheduler()
 start_date = date(2025, 1, 1)
 
-# Schedule tasks
 plan = scheduler.schedule([task_a, task_b], team, start_date)
-```
-
-View the plan output
-```python
-markdown = plan.get_markdown_view()
-print(markdown)
-
-gantt_chart = plan.get_gantt_chart()
-print(gantt_chart)
-
-```
