@@ -138,11 +138,28 @@ def test_schedule_tasks():
     assert scheduled_task_a.task == task_a
     assert scheduled_task_a.start_date == date(2025, 1, 1)
     assert scheduled_task_a.end_date == date(2025, 1, 7)
+    assert scheduled_task_a.daily_engineer_allocation == {
+        date(2025, 1, 1): 2,
+        date(2025, 1, 2): 2,
+        date(2025, 1, 3): 2,
+        date(2025, 1, 4): 2,
+        date(2025, 1, 5): 2
+    }
 
     scheduled_task_b = plan.scheduled_tasks[1]
     assert scheduled_task_b.task == task_b
     assert scheduled_task_b.start_date == date(2025, 1, 8)
-    assert scheduled_task_b.end_date == date(2025, 1, 17)
+    assert scheduled_task_b.end_date == date(2025, 1, 15)
+    assert scheduled_task_b.daily_engineer_allocation == {
+        date(2025, 1, 8): 1,
+        date(2025, 1, 9): 1,
+        date(2025, 1, 10): 1,
+        date(2025, 1, 11): 1,
+        date(2025, 1, 12): 1,
+        date(2025, 1, 13): 1,
+        date(2025, 1, 14): 1,
+        date(2025, 1, 15): 1
+    }
 
 
 def test_markdown_view():
