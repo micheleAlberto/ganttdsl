@@ -1,0 +1,19 @@
+[project]
+name = "ganttdsl"
+version = "0.1.0"
+description = "GanttDSL is a Python-based Domain-Specific Language (DSL) designed to simplify project planning and scheduling for software engineering teams. With GanttDSL, you can define tasks, teams, and dependencies in a clear, literate programming style, and generate detailed project views in Markdown or visualize timelines with PlantUML-compatible Gantt charts."
+authors = [
+    {name = "malberto", email = "robbyetor@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.pdm]
+distribution = true
