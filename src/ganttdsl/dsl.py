@@ -117,9 +117,13 @@ class Scheduler:
         return absolute_dates
         
 
+class CircularDependencyError(ValueError):
+    pass
 
 class CriticalPathScheduler(Scheduler):
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
+        if self.has_circular_dependencies(tasks):
+            raise CircularDependencyError("Tasks have circular dependencies")
         # Initialize variables
         planned_tasks = []
         task_start_times = {}
@@ -176,8 +180,8 @@ class CriticalPathScheduler(Scheduler):
 
     
 
-    @staticmethod
-    def has_circular_dependencies(tasks: List[Task]) -> bool:
+    @classmethod
+    def has_circular_dependencies(cls, tasks: List[Task]) -> bool:
         visited = set()
 
         def dfs(task, ancestors):

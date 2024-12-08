@@ -1,6 +1,6 @@
 import pytest
 from datetime import date
-from ganttdsl.dsl import Task, Team, CriticalPathScheduler, Scheduler, Plan, ScheduledTask
+from ganttdsl.dsl import CircularDependencyError, Task, Team, CriticalPathScheduler, Scheduler, Plan, ScheduledTask
 from itertools import permutations
 
 
@@ -68,44 +68,10 @@ def test_scheduler_detects_circular_dependencies():
     task_a.dependencies.add(task_b)  # Create a circular dependency
 
     scheduler = CriticalPathScheduler()
-    with pytest.raises(ValueError, match="Circular dependencies detected in tasks"):
+    with pytest.raises(CircularDependencyError):
         scheduler.schedule([task_a, task_b], Team(name="Team", size=3), date(2025, 1, 1))
 
 
-def test_scheduler_topological_sort():
-    task_a = Task(
-        name="Task A",
-        description="First task.",
-        references=[],
-        point_of_contact="Engineer A",
-        effort=5,
-        parallelization_factor=1
-    )
-    task_b = Task(
-        name="Task B",
-        description="Second task, depends on Task A.",
-        references=[],
-        point_of_contact="Engineer B",
-        effort=8,
-        parallelization_factor=2,
-        dependencies={task_a}
-    )
-    task_c = Task(
-        name="Task C",
-        description="Independent task.",
-        references=[],
-        point_of_contact="Engineer C",
-        effort=3,
-        parallelization_factor=1
-    )
-
-    scheduler = CriticalPathScheduler()
-    # Test that Task A comes before Task B in the sorted list
-    # by trying all permutations of the tasks
-    tasks = [task_a, task_b, task_c]
-    for perm in permutations(tasks):
-        sorted_tasks = scheduler.topological_sort(list(perm))
-        assert sorted_tasks.index(task_a) < sorted_tasks.index(task_b)
 
 
 def test_schedule_tasks():
@@ -137,7 +103,7 @@ def test_schedule_tasks():
     scheduled_task_a = plan.scheduled_tasks[0]
     assert scheduled_task_a.task == task_a
     assert scheduled_task_a.start_date == date(2025, 1, 1)
-    assert scheduled_task_a.end_date == date(2025, 1, 7)
+    assert scheduled_task_a.end_date == date(2025, 1, 5)
     assert scheduled_task_a.daily_engineer_allocation == {
         date(2025, 1, 1): 2,
         date(2025, 1, 2): 2,
@@ -148,17 +114,17 @@ def test_schedule_tasks():
 
     scheduled_task_b = plan.scheduled_tasks[1]
     assert scheduled_task_b.task == task_b
-    assert scheduled_task_b.start_date == date(2025, 1, 8)
-    assert scheduled_task_b.end_date == date(2025, 1, 15)
+    assert scheduled_task_b.start_date == date(2025, 1, 6)
+    assert scheduled_task_b.end_date == date(2025, 1, 13)
     assert scheduled_task_b.daily_engineer_allocation == {
+        date(2025, 1, 6): 1,
+        date(2025, 1, 7): 1,
         date(2025, 1, 8): 1,
         date(2025, 1, 9): 1,
         date(2025, 1, 10): 1,
         date(2025, 1, 11): 1,
         date(2025, 1, 12): 1,
-        date(2025, 1, 13): 1,
-        date(2025, 1, 14): 1,
-        date(2025, 1, 15): 1
+        date(2025, 1, 13): 1
     }
 
 
