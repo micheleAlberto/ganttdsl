@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:fca390498043432c5fd6d115229a0e0fa5868bc74dbfe8c95499accd882e8174"
+content_hash = "sha256:4a7c11c87a7062b9e73430e8e0143e0e5e272d8dd571afb44615f3e1480fecfb"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -921,6 +921,17 @@ files = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "75.6.0"
+requires_python = ">=3.9"
+summary = "Easily download, build, install, upgrade, and uninstall Python packages"
+groups = ["default"]
+files = [
+    {file = "setuptools-75.6.0-py3-none-any.whl", hash = "sha256:ce74b49e8f7110f9bf04883b730f4765b774ef3ef28f722cce7c273d253aaf7d"},
+    {file = "setuptools-75.6.0.tar.gz", hash = "sha256:8199222558df7c86216af4f84c30e9b34a61d8ba19366cc914424cdbd28252f6"},
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
@@ -1084,6 +1095,33 @@ groups = ["default"]
 files = [
     {file = "urllib3-2.2.3-py3-none-any.whl", hash = "sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac"},
     {file = "urllib3-2.2.3.tar.gz", hash = "sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9"},
+]
+
+[[package]]
+name = "uv"
+version = "0.5.7"
+requires_python = ">=3.8"
+summary = "An extremely fast Python package and project manager, written in Rust."
+groups = ["dev"]
+files = [
+    {file = "uv-0.5.7-py3-none-linux_armv6l.whl", hash = "sha256:fb4a3ccbe13072b98919413ac8378dd3e2b5480352f75c349a4f71f423801485"},
+    {file = "uv-0.5.7-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:a4fc62749bda8e7ae62212b1d85cdf6c7bad41918b3c8ac5a6d730dd093d793d"},
+    {file = "uv-0.5.7-py3-none-macosx_11_0_arm64.whl", hash = "sha256:78c3c040e52c09a410b9788656d6e760d557f223058537081cb03a3e25ce89de"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:76b514c79136e779cccf90cce5d60f317a0d42074e9f4c059f198ef435f2f6ab"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:a45648db157d2aaff859fe71ec738efea09b972b8864feb2fd61ef856a15b24f"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c1e7b5bcc8b380e333e948c01f6f4c6203067b5de60a05f8ed786332af7a9132"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:737a06b15c4e6b8ab7dd0a577ba766380bda4c18ba4ecfcfff37d336f1b03a00"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:ba25eb99891b95b5200d5e369b788d443fae370b097e7268a71e9ba753f2af3f"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:747c011da9f631354a1c89b62b19b8572e040d3fe01c6fb8d650facc7a09fdbb"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a141b40444c4184efba9fdc10abb3c1cff32154c7f8b0ad46ddc180d65a82d90"},
+    {file = "uv-0.5.7-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:46b03a9a78438219fb3060c096773284e2f22417a9c1f8fdd602f0650b3355c2"},
+    {file = "uv-0.5.7-py3-none-musllinux_1_1_armv7l.whl", hash = "sha256:13961a8116515eb288c4f91849fba11ebda0dfeec44cc356e388b3b03b2dbbe1"},
+    {file = "uv-0.5.7-py3-none-musllinux_1_1_i686.whl", hash = "sha256:071b57c934bdee8d7502a70e9ea0739a10e9b2d1d0c67e923a09e7a23d9a181b"},
+    {file = "uv-0.5.7-py3-none-musllinux_1_1_ppc64le.whl", hash = "sha256:1c5b89c64fb627f52f1e9c9bbc4dcc7bae29c4c5ab8eff46da3c966bbd4caed2"},
+    {file = "uv-0.5.7-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:b79e32438390add793bebc41b0729054e375be30bc53f124ee212d9c97affc39"},
+    {file = "uv-0.5.7-py3-none-win32.whl", hash = "sha256:d0600d2b2fbd9a9446bfbb7f03d88bc3d0293b949ce40e326429dd4fe246c926"},
+    {file = "uv-0.5.7-py3-none-win_amd64.whl", hash = "sha256:27c630780e1856a70fbeb267e1ed6835268a1b50963ab9a984fafa4184389def"},
+    {file = "uv-0.5.7.tar.gz", hash = "sha256:4d22a5046a6246af85c92257d110ed8fbcd98b16824e4efa9d825d001222b2cb"},
 ]
 
 [[package]]
