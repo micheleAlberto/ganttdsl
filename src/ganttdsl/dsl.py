@@ -3,7 +3,7 @@ from  dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, List, Set, Optional, Callable, Dict
 import cpmpy as cp
-
+import pandas as pd
 class Task:
     """
     Represents a task in the project.
@@ -162,6 +162,7 @@ class Plan:
     """
     def __init__(self, scheduled_tasks: List[ScheduledTask], start_date: date, workday_filter: Callable[[date], bool]) -> None:
         self.scheduled_tasks = scheduled_tasks
+        self.start_date = start_date
         total_days = max(scheduled_task.end_day or 0 for scheduled_task in scheduled_tasks)
         days_to_date :dict[int,date]= {}
         current_date = start_date
@@ -174,6 +175,21 @@ class Plan:
         for scheduled_task in self.scheduled_tasks:
             scheduled_task._set_days_to_date_conversion(days_to_date)
 
+    def get_dependency_graph(self) -> str:
+        """
+        Returns a dependency graph representation of the plan.
+
+        Returns:
+            str: The dependency graph view of the plan.
+        """
+        graph = "digraph G {\n"
+        for scheduled_task in self.scheduled_tasks:
+            task = scheduled_task.task
+            graph += f'"{task.name}" [label="{task.name}"];\n'
+            for dep in task.dependencies:
+                graph += f'"{dep.name}" -> "{task.name}";\n'
+        graph += "}\n"
+        return graph
     def get_markdown_view(self) -> str:
         """
         Returns a markdown representation of the plan.
@@ -184,13 +200,24 @@ class Plan:
         markdown = "# Project Plan\n\n"
         for scheduled_task in self.scheduled_tasks:
             task = scheduled_task.task
-            markdown += f"## {task.name}\n"
+            markdown += f"## `{task.name}`\n\n"
             markdown += f"{task.description}\n\n"
-            markdown += f"**Effort**: {task.effort} days\n"
-            markdown += f"**Parallelization Factor**: {task.parallelization_factor}\n"
-            markdown += f"**Point of Contact**: {task.point_of_contact}\n"
-            markdown += f"**References**: {', '.join(task.references)}\n"
-            markdown += f"**Dependencies**: {', '.join(dep.name for dep in task.dependencies)}\n\n"
+            markdown += f"**Effort**: {task.effort} days\n\n"
+            markdown += f"**Parallelization Factor**: {task.parallelization_factor}\n\n"
+            markdown += f"**Point of Contact**: {task.point_of_contact}\n\n"
+            markdown += "**References**:\n\n"
+            for reference in task.references:
+                markdown += f"  - [{reference}]({reference})\n"
+            markdown += "\n\n"
+            markdown += "**Dependencies**:\n\n"
+            for dep in task.dependencies:
+                markdown += f"  - `{dep.name}`\n"
+            markdown += "\n\n"
+            markdown += f"### Schedule\n\n"
+            markdown += "| Date | Engineers |\n"
+            markdown += "|------|-----------|\n"
+            for date, engineers in scheduled_task.date_engineer_allocation.items():
+                markdown += f"| {date.strftime('%Y-%m-%d')} | {engineers} |\n"
         return markdown
 
     def get_gantt_chart(self) -> str:
@@ -201,13 +228,54 @@ class Plan:
             str: The Gantt chart view of the plan.
         """
         gantt_chart = "@startgantt\n"
+        gantt_chart += f"Project starts {self.start_date.strftime('%Y-%m-%d')}\n" # date like 2025-01-01
         for scheduled_task in self.scheduled_tasks:
             task = scheduled_task.task
-            gantt_chart += f"[{task.name}] requires {task.effort} days\n"
             gantt_chart += f"[{task.name}] starts {scheduled_task.start_date}\n"
+            gantt_chart += f"[{task.name}] ends {scheduled_task.end_date}\n"
         gantt_chart += "@endgantt\n"
         return gantt_chart
+    def get_engineer_use_table(self) -> pd.DataFrame:
+        """
+        Returns a table of engineer use over time.
 
+        Returns:
+            pd.DataFrame: The table of engineer use over time.
+            
+        Columns:
+            Date: The date of the allocation.
+            Total : The total number of engineers allocated on that date.
+            T-$task_name: The number of engineers allocated to task $task_name on that date.
+        """
+        days = sorted(self.days_to_date.values())
+        df = pd.DataFrame(dict(Date=days))
+        df["Total"] = [0] * len(days)
+        for scheduled_task in self.scheduled_tasks:
+            df[f"T-{scheduled_task.task.name}"] = [0] * len(days)
+            for date, engineers in scheduled_task.date_engineer_allocation.items():
+                index = days.index(date)
+                df.at[index, f"T-{scheduled_task.task.name}"] += engineers
+            df["Total"] += df[f"T-{scheduled_task.task.name}"]
+        return df
+    def get_task_table(self) -> pd.DataFrame:
+        """
+        Returns a table of tasks and their scheduled start and end dates.
+
+        Returns:
+            pd.DataFrame: The table of tasks and their scheduled start and end dates.
+        """
+        data = []
+        for scheduled_task in self.scheduled_tasks:
+            data.append({
+                "Task": scheduled_task.task.name,
+                "Start Date": scheduled_task.start_date,
+                "End Date": scheduled_task.end_date,
+                "Effort": scheduled_task.task.effort,
+                "Parallelization Factor": scheduled_task.task.parallelization_factor,
+                "Point of Contact": scheduled_task.task.point_of_contact,
+                "Dependencies": ", ".join(dep.name for dep in scheduled_task.task.dependencies)
+            })
+        return pd.DataFrame(data)
 
 class Scheduler:
     """
@@ -371,7 +439,12 @@ class CriticalPathScheduler(Scheduler):
                 m += cp.Count([chunk.day_of_work for chunk in chunks], day) <= max_parallel
                 if self.debug_mode:
                     print(f"Count({[chunk.key() for chunk in chunks]}, {day}) <= {max_parallel}")
-                
+        for day in range(self.max_days):
+            m += cp.Count([chunk.day_of_work for chunk in all_chunks], day) <= team.size
+            if self.debug_mode:
+                print(
+                    f"Count(*, {day}) <= {team.size}"
+                )
         # compute the cost function as the last day of work of the last task
         cost_function = self.cost_of_time * cp.Maximum([chunk.day_of_work for chunk in all_chunks]) 
         # bias the cost function by penalizing context switching and keeping many tasks active concurrently

@@ -5,7 +5,7 @@ description = "GanttDSL is a Python-based Domain-Specific Language (DSL) designe
 authors = [
     {name = "malberto", email = "robbyetor@gmail.com"},
 ]
-dependencies = ["cpmpy>=0.9.23"]
+dependencies = ["cpmpy>=0.9.23", "pandas>=2.2.3", "tabulate>=0.9.0", "streamlit>=1.40.2", "altair>=5.5.0"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}

@@ -1,9 +1,18 @@
 # GanttDSL Tutorial
+GanttDSL is an elaborate plot to avoid using JIRA while getting something radically better in return : automated critical path planning.
+
+GanttDSL is a python embedded DSL to write the stories you have to work on for a project or as part of a team.
+
+What GanttDSL brings to the table is a constrained optimizer to schedule the work so it gets done as soon as possible and minimizing context switching.
+
+GanttDSL is aware that engineers don't work on weekends and you can inject a workday filter.
+
+Plans can be rendered in markdown and gantt charts can be produced in plantuml format.
 
 #### Step 1: Define Tasks
 
 First, let's define the tasks for our 3-tier project. Each task has a name, description, references, point of contact, effort, parallelization factor, and dependencies.
-
+![alt text](image-1.png)
 ```python
 from datetime import date
 from ganttdsl.dsl import Task, Team, CriticalPathScheduler
@@ -155,101 +164,7 @@ markdown = plan.get_markdown_view()
 print(markdown)
 ```
 
-The output will look like this:
-
-```markdown
-# Project Plan
-
-## Design Web Client
-Design the web client interface.
-
-**Effort**: 5 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer A
-**References**: https://example.com/web-client-design
-**Dependencies**: 
-
-## Implement Web Client
-Implement the web client based on the design.
-
-**Effort**: 10 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer B
-**References**: https://example.com/web-client-implementation
-**Dependencies**: Design Web Client
-
-## Test Web Client
-Test the web client implementation.
-
-**Effort**: 5 days
-**Parallelization Factor**: 1
-**Point of Contact**: Engineer C
-**References**: https://example.com/web-client-testing
-**Dependencies**: Implement Web Client
-
-## Design Web Server
-Design the web server architecture.
-
-**Effort**: 5 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer D
-**References**: https://example.com/web-server-design
-**Dependencies**: 
-
-## Implement Web Server
-Implement the web server based on the design.
-
-**Effort**: 10 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer E
-**References**: https://example.com/web-server-implementation
-**Dependencies**: Design Web Server
-
-## Test Web Server
-Test the web server implementation.
-
-**Effort**: 5 days
-**Parallelization Factor**: 1
-**Point of Contact**: Engineer F
-**References**: https://example.com/web-server-testing
-**Dependencies**: Implement Web Server
-
-## Design Database
-Design the database schema.
-
-**Effort**: 5 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer G
-**References**: https://example.com/database-design
-**Dependencies**: 
-
-## Implement Database
-Implement the database based on the design.
-
-**Effort**: 10 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer H
-**References**: https://example.com/database-implementation
-**Dependencies**: Design Database
-
-## Test Database
-Test the database implementation.
-
-**Effort**: 5 days
-**Parallelization Factor**: 1
-**Point of Contact**: Engineer I
-**References**: https://example.com/database-testing
-**Dependencies**: Implement Database
-
-## Deploy to Production
-Deploy the entire system to production.
-
-**Effort**: 5 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer J
-**References**: https://example.com/deployment
-**Dependencies**: Test Web Client, Test Web Server, Test Database
-```
+The output will look like the example after the gantt chart.
 
 #### Step 5: Generate Gantt Chart
 
@@ -265,27 +180,313 @@ The output will look like this:
 
 ```plantuml
 @startgantt
-[Design Web Client] requires 5 days
-[Implement Web Client] requires 10 days
-[Test Web Client] requires 5 days
-[Design Web Server] requires 5 days
-[Implement Web Server] requires 10 days
-[Test Web Server] requires 5 days
-[Design Database] requires 5 days
-[Implement Database] requires 10 days
-[Test Database] requires 5 days
-[Deploy to Production] requires 5 days
-
 Project starts 2025-01-01
+[Design Web Client] requires 5 days
 [Design Web Client] starts 2025-01-01
+[Implement Web Client] requires 10 days
 [Implement Web Client] starts 2025-01-06
-[Test Web Client] starts 2025-01-16
+[Test Web Client] requires 5 days
+[Test Web Client] starts 2025-01-13
+[Design Web Server] requires 5 days
 [Design Web Server] starts 2025-01-01
+[Implement Web Server] requires 10 days
 [Implement Web Server] starts 2025-01-06
-[Test Web Server] starts 2025-01-16
+[Test Web Server] requires 5 days
+[Test Web Server] starts 2025-01-13
+[Design Database] requires 5 days
 [Design Database] starts 2025-01-01
+[Implement Database] requires 10 days
 [Implement Database] starts 2025-01-06
-[Test Database] starts 2025-01-16
-[Deploy to Production] starts 2025-01-21
+[Test Database] requires 5 days
+[Test Database] starts 2025-01-13
+[Deploy to Production] requires 5 days
+[Deploy to Production] starts 2025-01-20
 @endgantt
+
 ```
+![alt text](image.png)
+
+
+# Project Plan
+
+## `Design Web Client`
+
+Design the web client interface.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer A
+
+**References**:
+
+  - [https://example.com/web-client-design](https://example.com/web-client-design)
+
+
+**Dependencies**:
+
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-01 | 2 |
+| 2025-01-02 | 2 |
+| 2025-01-03 | 1 |
+## `Implement Web Client`
+
+Implement the web client based on the design.
+
+**Effort**: 10 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer B
+
+**References**:
+
+  - [https://example.com/web-client-implementation](https://example.com/web-client-implementation)
+
+
+**Dependencies**:
+
+  - `Design Web Client`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-06 | 2 |
+| 2025-01-07 | 2 |
+| 2025-01-08 | 2 |
+| 2025-01-09 | 2 |
+| 2025-01-10 | 2 |
+## `Test Web Client`
+
+Test the web client implementation.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 1
+
+**Point of Contact**: Engineer C
+
+**References**:
+
+  - [https://example.com/web-client-testing](https://example.com/web-client-testing)
+
+
+**Dependencies**:
+
+  - `Implement Web Client`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-13 | 1 |
+| 2025-01-14 | 1 |
+| 2025-01-15 | 1 |
+| 2025-01-16 | 1 |
+| 2025-01-17 | 1 |
+## `Design Web Server`
+
+Design the web server architecture.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer D
+
+**References**:
+
+  - [https://example.com/web-server-design](https://example.com/web-server-design)
+
+
+**Dependencies**:
+
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-01 | 2 |
+| 2025-01-02 | 2 |
+| 2025-01-03 | 1 |
+## `Implement Web Server`
+
+Implement the web server based on the design.
+
+**Effort**: 10 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer E
+
+**References**:
+
+  - [https://example.com/web-server-implementation](https://example.com/web-server-implementation)
+
+
+**Dependencies**:
+
+  - `Design Web Server`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-06 | 2 |
+| 2025-01-07 | 2 |
+| 2025-01-08 | 2 |
+| 2025-01-09 | 2 |
+| 2025-01-10 | 2 |
+## `Test Web Server`
+
+Test the web server implementation.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 1
+
+**Point of Contact**: Engineer F
+
+**References**:
+
+  - [https://example.com/web-server-testing](https://example.com/web-server-testing)
+
+
+**Dependencies**:
+
+  - `Implement Web Server`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-13 | 1 |
+| 2025-01-14 | 1 |
+| 2025-01-15 | 1 |
+| 2025-01-16 | 1 |
+| 2025-01-17 | 1 |
+## `Design Database`
+
+Design the database schema.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer G
+
+**References**:
+
+  - [https://example.com/database-design](https://example.com/database-design)
+
+
+**Dependencies**:
+
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-01 | 2 |
+| 2025-01-02 | 2 |
+| 2025-01-03 | 1 |
+## `Implement Database`
+
+Implement the database based on the design.
+
+**Effort**: 10 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer H
+
+**References**:
+
+  - [https://example.com/database-implementation](https://example.com/database-implementation)
+
+
+**Dependencies**:
+
+  - `Design Database`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-06 | 2 |
+| 2025-01-07 | 2 |
+| 2025-01-08 | 2 |
+| 2025-01-09 | 2 |
+| 2025-01-10 | 2 |
+## `Test Database`
+
+Test the database implementation.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 1
+
+**Point of Contact**: Engineer I
+
+**References**:
+
+  - [https://example.com/database-testing](https://example.com/database-testing)
+
+
+**Dependencies**:
+
+  - `Implement Database`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-13 | 1 |
+| 2025-01-14 | 1 |
+| 2025-01-15 | 1 |
+| 2025-01-16 | 1 |
+| 2025-01-17 | 1 |
+## `Deploy to Production`
+
+Deploy the entire system to production.
+
+**Effort**: 5 days
+
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer J
+
+**References**:
+
+  - [https://example.com/deployment](https://example.com/deployment)
+
+
+**Dependencies**:
+
+  - `Test Database`
+  - `Test Web Server`
+  - `Test Web Client`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-20 | 2 |
+| 2025-01-21 | 2 |
+| 2025-01-22 | 1 |

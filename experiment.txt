@@ -1,0 +1,182 @@
+Number of Engineers: 3
+
+|    | Date       |   Total |   T-Design Web Client |   T-Implement Web Client |   T-Test Web Client |   T-Design Web Server |   T-Implement Web Server |   T-Test Web Server |   T-Design Database |   T-Implement Database |   T-Test Database |   T-Deploy to Production |
+|---:|:-----------|--------:|----------------------:|-------------------------:|--------------------:|----------------------:|-------------------------:|--------------------:|--------------------:|-----------------------:|------------------:|-------------------------:|
+|  0 | 2025-01-01 |       3 |                     2 |                        0 |                   0 |                     1 |                        0 |                   0 |                   0 |                      0 |                 0 |                        0 |
+|  1 | 2025-01-02 |       3 |                     2 |                        0 |                   0 |                     1 |                        0 |                   0 |                   0 |                      0 |                 0 |                        0 |
+|  2 | 2025-01-03 |       3 |                     1 |                        0 |                   0 |                     2 |                        0 |                   0 |                   0 |                      0 |                 0 |                        0 |
+|  3 | 2025-01-06 |       3 |                     0 |                        2 |                   0 |                     1 |                        0 |                   0 |                   0 |                      0 |                 0 |                        0 |
+|  4 | 2025-01-07 |       3 |                     0 |                        2 |                   0 |                     0 |                        0 |                   0 |                   1 |                      0 |                 0 |                        0 |
+|  5 | 2025-01-08 |       3 |                     0 |                        2 |                   0 |                     0 |                        0 |                   0 |                   1 |                      0 |                 0 |                        0 |
+|  6 | 2025-01-09 |       3 |                     0 |                        2 |                   0 |                     0 |                        0 |                   0 |                   1 |                      0 |                 0 |                        0 |
+|  7 | 2025-01-10 |       3 |                     0 |                        1 |                   0 |                     0 |                        0 |                   0 |                   2 |                      0 |                 0 |                        0 |
+|  8 | 2025-01-13 |       3 |                     0 |                        1 |                   0 |                     0 |                        2 |                   0 |                   0 |                      0 |                 0 |                        0 |
+|  9 | 2025-01-14 |       3 |                     0 |                        0 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+| 10 | 2025-01-15 |       3 |                     0 |                        0 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+| 11 | 2025-01-16 |       3 |                     0 |                        0 |                   0 |                     0 |                        2 |                   0 |                   0 |                      1 |                 0 |                        0 |
+| 12 | 2025-01-17 |       3 |                     0 |                        0 |                   0 |                     0 |                        2 |                   0 |                   0 |                      1 |                 0 |                        0 |
+| 13 | 2025-01-20 |       3 |                     0 |                        0 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+| 14 | 2025-01-21 |       3 |                     0 |                        0 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+| 15 | 2025-01-22 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 16 | 2025-01-23 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 17 | 2025-01-24 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 18 | 2025-01-27 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 19 | 2025-01-28 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 20 | 2025-01-29 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 21 | 2025-01-30 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 22 | 2025-01-31 |       1 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        1 |
+
+|    | Task                 | Start Date   | End Date   |   Effort |   Parallelization Factor | Point of Contact   | Dependencies                                    |
+|---:|:---------------------|:-------------|:-----------|---------:|-------------------------:|:-------------------|:------------------------------------------------|
+|  0 | Design Web Client    | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer A         |                                                 |
+|  1 | Implement Web Client | 2025-01-06   | 2025-01-13 |       10 |                        2 | Engineer B         | Design Web Client                               |
+|  2 | Test Web Client      | 2025-01-22   | 2025-01-28 |        5 |                        1 | Engineer C         | Implement Web Client                            |
+|  3 | Design Web Server    | 2025-01-01   | 2025-01-06 |        5 |                        2 | Engineer D         |                                                 |
+|  4 | Implement Web Server | 2025-01-13   | 2025-01-21 |       10 |                        2 | Engineer E         | Design Web Server                               |
+|  5 | Test Web Server      | 2025-01-22   | 2025-01-28 |        5 |                        1 | Engineer F         | Implement Web Server                            |
+|  6 | Design Database      | 2025-01-07   | 2025-01-10 |        5 |                        2 | Engineer G         |                                                 |
+|  7 | Implement Database   | 2025-01-14   | 2025-01-21 |       10 |                        2 | Engineer H         | Design Database                                 |
+|  8 | Test Database        | 2025-01-22   | 2025-01-28 |        5 |                        1 | Engineer I         | Implement Database                              |
+|  9 | Deploy to Production | 2025-01-29   | 2025-01-31 |        5 |                        2 | Engineer J         | Test Web Client, Test Database, Test Web Server |
+
+@startgantt
+Project starts 2025-01-01
+[Design Web Client] requires 5 days
+[Design Web Client] starts 2025-01-01
+[Implement Web Client] requires 10 days
+[Implement Web Client] starts 2025-01-06
+[Test Web Client] requires 5 days
+[Test Web Client] starts 2025-01-22
+[Design Web Server] requires 5 days
+[Design Web Server] starts 2025-01-01
+[Implement Web Server] requires 10 days
+[Implement Web Server] starts 2025-01-13
+[Test Web Server] requires 5 days
+[Test Web Server] starts 2025-01-22
+[Design Database] requires 5 days
+[Design Database] starts 2025-01-07
+[Implement Database] requires 10 days
+[Implement Database] starts 2025-01-14
+[Test Database] requires 5 days
+[Test Database] starts 2025-01-22
+[Deploy to Production] requires 5 days
+[Deploy to Production] starts 2025-01-29
+@endgantt
+
+Number of Engineers: 5
+
+|    | Date       |   Total |   T-Design Web Client |   T-Implement Web Client |   T-Test Web Client |   T-Design Web Server |   T-Implement Web Server |   T-Test Web Server |   T-Design Database |   T-Implement Database |   T-Test Database |   T-Deploy to Production |
+|---:|:-----------|--------:|----------------------:|-------------------------:|--------------------:|----------------------:|-------------------------:|--------------------:|--------------------:|-----------------------:|------------------:|-------------------------:|
+|  0 | 2025-01-01 |       5 |                     2 |                        0 |                   0 |                     2 |                        0 |                   0 |                   1 |                      0 |                 0 |                        0 |
+|  1 | 2025-01-02 |       5 |                     1 |                        0 |                   0 |                     2 |                        0 |                   0 |                   2 |                      0 |                 0 |                        0 |
+|  2 | 2025-01-03 |       5 |                     2 |                        0 |                   0 |                     1 |                        0 |                   0 |                   2 |                      0 |                 0 |                        0 |
+|  3 | 2025-01-06 |       5 |                     0 |                        2 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  4 | 2025-01-07 |       5 |                     0 |                        2 |                   0 |                     0 |                        1 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  5 | 2025-01-08 |       5 |                     0 |                        1 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  6 | 2025-01-09 |       5 |                     0 |                        1 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  7 | 2025-01-10 |       5 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      1 |                 0 |                        0 |
+|  8 | 2025-01-13 |       5 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      1 |                 0 |                        0 |
+|  9 | 2025-01-14 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 10 | 2025-01-15 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 11 | 2025-01-16 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 12 | 2025-01-17 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 13 | 2025-01-20 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 14 | 2025-01-21 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 15 | 2025-01-22 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 16 | 2025-01-23 |       1 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        1 |
+
+|    | Task                 | Start Date   | End Date   |   Effort |   Parallelization Factor | Point of Contact   | Dependencies                                    |
+|---:|:---------------------|:-------------|:-----------|---------:|-------------------------:|:-------------------|:------------------------------------------------|
+|  0 | Design Web Client    | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer A         |                                                 |
+|  1 | Implement Web Client | 2025-01-06   | 2025-01-13 |       10 |                        2 | Engineer B         | Design Web Client                               |
+|  2 | Test Web Client      | 2025-01-14   | 2025-01-20 |        5 |                        1 | Engineer C         | Implement Web Client                            |
+|  3 | Design Web Server    | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer D         |                                                 |
+|  4 | Implement Web Server | 2025-01-06   | 2025-01-13 |       10 |                        2 | Engineer E         | Design Web Server                               |
+|  5 | Test Web Server      | 2025-01-14   | 2025-01-20 |        5 |                        1 | Engineer F         | Implement Web Server                            |
+|  6 | Design Database      | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer G         |                                                 |
+|  7 | Implement Database   | 2025-01-06   | 2025-01-13 |       10 |                        2 | Engineer H         | Design Database                                 |
+|  8 | Test Database        | 2025-01-14   | 2025-01-20 |        5 |                        1 | Engineer I         | Implement Database                              |
+|  9 | Deploy to Production | 2025-01-21   | 2025-01-23 |        5 |                        2 | Engineer J         | Test Web Client, Test Database, Test Web Server |
+
+@startgantt
+Project starts 2025-01-01
+[Design Web Client] requires 5 days
+[Design Web Client] starts 2025-01-01
+[Implement Web Client] requires 10 days
+[Implement Web Client] starts 2025-01-06
+[Test Web Client] requires 5 days
+[Test Web Client] starts 2025-01-14
+[Design Web Server] requires 5 days
+[Design Web Server] starts 2025-01-01
+[Implement Web Server] requires 10 days
+[Implement Web Server] starts 2025-01-06
+[Test Web Server] requires 5 days
+[Test Web Server] starts 2025-01-14
+[Design Database] requires 5 days
+[Design Database] starts 2025-01-01
+[Implement Database] requires 10 days
+[Implement Database] starts 2025-01-06
+[Test Database] requires 5 days
+[Test Database] starts 2025-01-14
+[Deploy to Production] requires 5 days
+[Deploy to Production] starts 2025-01-21
+@endgantt
+
+Number of Engineers: 8
+
+|    | Date       |   Total |   T-Design Web Client |   T-Implement Web Client |   T-Test Web Client |   T-Design Web Server |   T-Implement Web Server |   T-Test Web Server |   T-Design Database |   T-Implement Database |   T-Test Database |   T-Deploy to Production |
+|---:|:-----------|--------:|----------------------:|-------------------------:|--------------------:|----------------------:|-------------------------:|--------------------:|--------------------:|-----------------------:|------------------:|-------------------------:|
+|  0 | 2025-01-01 |       6 |                     2 |                        0 |                   0 |                     2 |                        0 |                   0 |                   2 |                      0 |                 0 |                        0 |
+|  1 | 2025-01-02 |       6 |                     2 |                        0 |                   0 |                     2 |                        0 |                   0 |                   2 |                      0 |                 0 |                        0 |
+|  2 | 2025-01-03 |       3 |                     1 |                        0 |                   0 |                     1 |                        0 |                   0 |                   1 |                      0 |                 0 |                        0 |
+|  3 | 2025-01-06 |       6 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  4 | 2025-01-07 |       6 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  5 | 2025-01-08 |       6 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  6 | 2025-01-09 |       6 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  7 | 2025-01-10 |       6 |                     0 |                        2 |                   0 |                     0 |                        2 |                   0 |                   0 |                      2 |                 0 |                        0 |
+|  8 | 2025-01-13 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+|  9 | 2025-01-14 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 10 | 2025-01-15 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 11 | 2025-01-16 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 12 | 2025-01-17 |       3 |                     0 |                        0 |                   1 |                     0 |                        0 |                   1 |                   0 |                      0 |                 1 |                        0 |
+| 13 | 2025-01-20 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 14 | 2025-01-21 |       2 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        2 |
+| 15 | 2025-01-22 |       1 |                     0 |                        0 |                   0 |                     0 |                        0 |                   0 |                   0 |                      0 |                 0 |                        1 |
+
+|    | Task                 | Start Date   | End Date   |   Effort |   Parallelization Factor | Point of Contact   | Dependencies                                    |
+|---:|:---------------------|:-------------|:-----------|---------:|-------------------------:|:-------------------|:------------------------------------------------|
+|  0 | Design Web Client    | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer A         |                                                 |
+|  1 | Implement Web Client | 2025-01-06   | 2025-01-10 |       10 |                        2 | Engineer B         | Design Web Client                               |
+|  2 | Test Web Client      | 2025-01-13   | 2025-01-17 |        5 |                        1 | Engineer C         | Implement Web Client                            |
+|  3 | Design Web Server    | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer D         |                                                 |
+|  4 | Implement Web Server | 2025-01-06   | 2025-01-10 |       10 |                        2 | Engineer E         | Design Web Server                               |
+|  5 | Test Web Server      | 2025-01-13   | 2025-01-17 |        5 |                        1 | Engineer F         | Implement Web Server                            |
+|  6 | Design Database      | 2025-01-01   | 2025-01-03 |        5 |                        2 | Engineer G         |                                                 |
+|  7 | Implement Database   | 2025-01-06   | 2025-01-10 |       10 |                        2 | Engineer H         | Design Database                                 |
+|  8 | Test Database        | 2025-01-13   | 2025-01-17 |        5 |                        1 | Engineer I         | Implement Database                              |
+|  9 | Deploy to Production | 2025-01-20   | 2025-01-22 |        5 |                        2 | Engineer J         | Test Web Client, Test Database, Test Web Server |
+
+@startgantt
+Project starts 2025-01-01
+[Design Web Client] requires 5 days
+[Design Web Client] starts 2025-01-01
+[Implement Web Client] requires 10 days
+[Implement Web Client] starts 2025-01-06
+[Test Web Client] requires 5 days
+[Test Web Client] starts 2025-01-13
+[Design Web Server] requires 5 days
+[Design Web Server] starts 2025-01-01
+[Implement Web Server] requires 10 days
+[Implement Web Server] starts 2025-01-06
+[Test Web Server] requires 5 days
+[Test Web Server] starts 2025-01-13
+[Design Database] requires 5 days
+[Design Database] starts 2025-01-01
+[Implement Database] requires 10 days
+[Implement Database] starts 2025-01-06
+[Test Database] requires 5 days
+[Test Database] starts 2025-01-13
+[Deploy to Production] requires 5 days
+[Deploy to Production] starts 2025-01-20
+@endgantt
+

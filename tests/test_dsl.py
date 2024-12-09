@@ -192,6 +192,7 @@ def test_gantt_chart_view():
     plan = scheduler.schedule([task_a, task_b], team, start_date)
     gantt_chart = plan.get_gantt_chart()
     assert "@startgantt" in gantt_chart
+    assert "Project starts 2025-01-01" in gantt_chart
     assert "[Prototype Design] requires 10 days" in gantt_chart
     assert "[Build Prototype] starts 2025-01-08" in gantt_chart
     assert "@endgantt" in gantt_chart
