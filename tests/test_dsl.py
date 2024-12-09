@@ -146,24 +146,66 @@ def test_markdown_view():
     markdown = plan.get_markdown_view()
     assert markdown =="""# Project Plan
 
-## Prototype Design
+## `Prototype Design`
+
 Design the prototype.
 
 **Effort**: 10 days
-**Parallelization Factor**: 2
-**Point of Contact**: Engineer A
-**References**: https://example.com/design-doc
-**Dependencies**: 
 
-## Build Prototype
+**Parallelization Factor**: 2
+
+**Point of Contact**: Engineer A
+
+**References**:
+
+  - [https://example.com/design-doc](https://example.com/design-doc)
+
+
+**Dependencies**:
+
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-01 | 2 |
+| 2025-01-02 | 2 |
+| 2025-01-03 | 2 |
+| 2025-01-06 | 2 |
+| 2025-01-07 | 2 |
+## `Build Prototype`
+
 Build the prototype, depends on Task A.
 
 **Effort**: 8 days
-**Parallelization Factor**: 1
-**Point of Contact**: Engineer B
-**References**: https://example.com/build-doc
-**Dependencies**: Prototype Design
 
+**Parallelization Factor**: 1
+
+**Point of Contact**: Engineer B
+
+**References**:
+
+  - [https://example.com/build-doc](https://example.com/build-doc)
+
+
+**Dependencies**:
+
+  - `Prototype Design`
+
+
+### Schedule
+
+| Date | Engineers |
+|------|-----------|
+| 2025-01-08 | 1 |
+| 2025-01-09 | 1 |
+| 2025-01-10 | 1 |
+| 2025-01-13 | 1 |
+| 2025-01-14 | 1 |
+| 2025-01-15 | 1 |
+| 2025-01-16 | 1 |
+| 2025-01-17 | 1 |
 """
 
 
@@ -193,6 +235,6 @@ def test_gantt_chart_view():
     gantt_chart = plan.get_gantt_chart()
     assert "@startgantt" in gantt_chart
     assert "Project starts 2025-01-01" in gantt_chart
-    assert "[Prototype Design] requires 10 days" in gantt_chart
+    assert "[Build Prototype] ends 2025-01-17" in gantt_chart
     assert "[Build Prototype] starts 2025-01-08" in gantt_chart
     assert "@endgantt" in gantt_chart
