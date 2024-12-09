@@ -55,20 +55,63 @@ class ScheduledTask:
         self.task = task
         self.daily_engineer_allocation : dict[int, int] = defaultdict(int)
         # daily_engineer_allocation[t] == n means that n engineers are allocated to the task on day t
+        self._days_to_date : dict[int, date]|None = None
     @property
-    def start_date(self) -> int|None:
-        return min(self.daily_engineer_allocation.keys()) if self.daily_engineer_allocation else None
+    def start_day(self) -> int|None:
+        start_date = None
+        for day, engineers in self.daily_engineer_allocation.items():
+            if (engineers > 0) and ((start_date is None) or (day < start_date)):
+                start_date = day
+        return start_date
     @property
-    def end_date(self) -> int|None:
-        return max(self.daily_engineer_allocation.keys()) if self.daily_engineer_allocation else None
+    def end_day(self) -> int|None:
+        end_date = None
+        for day, engineers in self.daily_engineer_allocation.items():
+            if (engineers > 0) and ((end_date is None) or (day > end_date)):
+                end_date = day
+        return end_date
+    @property
+    def start_date(self) -> date|None:
+        if self._days_to_date is None:
+            return None
+        start_day = self.start_day
+        if start_day is None:
+            return None
+        return self._days_to_date[start_day]
+    @property
+    def end_date(self) -> date|None:
+        if self._days_to_date is None:
+            return None
+        end_day = self.end_day
+        if end_day is None:
+            return None
+        return self._days_to_date[end_day]
+    @property
+    def date_engineer_allocation(self) -> dict[date, int]:
+        if self._days_to_date is None:
+            return {}
+        return {self._days_to_date[day]: engineers for day, engineers in self.daily_engineer_allocation.items()}
+    def set_days_to_date_conversion(self, days_to_date: dict[int, date]) -> None:
+        self._days_to_date = days_to_date
     def __repr__(self):
-        return f"ScheduledTask(task={self.task.name}, start_date={self.start_date}, end_date={self.end_date})"
+        return f"ScheduledTask(task={self.task.name})"
 
 
 class Plan:
-    def __init__(self, scheduled_tasks: List[ScheduledTask]):
+    def __init__(self, scheduled_tasks: List[ScheduledTask], start_date: date, workday_filter: Callable[[date], bool]) -> None:
         self.scheduled_tasks = scheduled_tasks
-
+        total_days = max(scheduled_task.end_day or 0 for scheduled_task in scheduled_tasks)
+        days_to_date :dict[int,date]= {}
+        current_date = start_date
+        for day in range(total_days+1):
+            days_to_date[day] = current_date
+            current_date += timedelta(days=1)
+            while not workday_filter(current_date):
+                current_date += timedelta(days=1)
+        self.days_to_date = days_to_date
+        for scheduled_task in self.scheduled_tasks:
+            scheduled_task.set_days_to_date_conversion(days_to_date)
+            
     def get_markdown_view(self) -> str:
         output = []
         for scheduled_task in self.scheduled_tasks:
@@ -122,7 +165,10 @@ class CircularDependencyError(ValueError):
 @dataclass
 class ChunkOfWork:
     day_of_work : Any
-    task : ScheduledTask 
+    task : ScheduledTask
+    identifier: int
+    def key(self)->str:
+        return f"{self.task.task.name}:{self.identifier}"
     
 
     
@@ -130,12 +176,18 @@ class ChunkOfWork:
 class CriticalPathScheduler(Scheduler):
     def __init__(self, 
             max_days:int=100,
-            cost_of_context:float=0,
+            cost_of_time:int=100,
+            cost_of_context:int=1,
+            cost_of_procastination:int=1,
             workday_filter: Callable[[date], bool] = lambda d: d.weekday() < 5
         ):
         super().__init__(workday_filter)
         self.max_days: int = max_days
-        self.cost_of_context: float = cost_of_context
+        self.cost_of_context: int = cost_of_context
+        self.cost_of_time: int = cost_of_time
+        self.cost_of_procastination:int = cost_of_procastination
+        self.debug_mode = False
+        
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
         if self.has_circular_dependencies(tasks):
             raise CircularDependencyError("Tasks have circular dependencies")
@@ -153,32 +205,45 @@ class CriticalPathScheduler(Scheduler):
         all_chunks : list[ChunkOfWork]= []
         for scheduled_task in planned_tasks:
             task_chunks = [
-                ChunkOfWork(day_of_work=cp.intvar(lb=0,ub=self.max_days), task=scheduled_task)
-                for _ in range(scheduled_task.task.effort)
+                ChunkOfWork(
+                    day_of_work=cp.intvar(lb=0,ub=self.max_days),
+                    task=scheduled_task,
+                    identifier=identifier)
+                for identifier in range(scheduled_task.task.effort)
             ]
             chunks_by_task[scheduled_task] = task_chunks
             all_chunks.extend(task_chunks)
+            for chunk_a, chunk_b in zip(task_chunks[:-1], task_chunks[1:]):
+                m += chunk_a.day_of_work <= chunk_b.day_of_work
+                if self.debug_mode:
+                    print(f"{chunk_a.key()}.day <= {chunk_b.key()}.day")
         # Add constraints 1: Each task must be scheduled after its dependencies
         for dependency_task in planned_tasks:
             for dependent_task in dependents_of[dependency_task]:
                 for dependency_chunk in chunks_by_task[dependency_task]:
                     for dependent_chunk in chunks_by_task[dependent_task]:
                         m += dependent_chunk.day_of_work >= dependency_chunk.day_of_work + 1
+                        if self.debug_mode:
+                            print(f"{dependent_chunk.key()}.day >= {dependency_chunk.key()}.day + 1")
         # Add constraints 2: Each task must be scheduled before its dependents
         for dependent_task in planned_tasks:
             for dependency_task in dependencies_of[dependent_task]:
                 for dependent_chunk in chunks_by_task[dependent_task]:
                     for dependency_chunk in chunks_by_task[dependency_task]:
-                        m += dependent_chunk.day_of_work <= dependency_chunk.day_of_work - 1
+                        m += dependent_chunk.day_of_work >= dependency_chunk.day_of_work - 1
+                        if self.debug_mode:
+                            print(f"{dependent_chunk.key()}.day >= {dependency_chunk.key()}.day - 1")
         # Add constraints 3: the work being done on each task on a day by day basis is capped 
         # by the parallelization factor and the team size
         for scheduled_task, chunks in chunks_by_task.items():    
             max_parallel = min(scheduled_task.task.parallelization_factor, team.size)
             for day in range(self.max_days):
                 m += cp.Count([chunk.day_of_work for chunk in chunks], day) <= max_parallel
+                if self.debug_mode:
+                    print(f"Count({[chunk.key() for chunk in chunks]}, {day}) <= {max_parallel}")
                 
         # compute the cost function as the last day of work of the last task
-        cost_function = cp.Maximum([chunk.day_of_work for chunk in all_chunks]) 
+        cost_function = self.cost_of_time * cp.Maximum([chunk.day_of_work for chunk in all_chunks]) 
         # bias the cost function by penalizing context switching and keeping many tasks active concurrently
         for scheduled_task, chunks in chunks_by_task.items():
             cost_function += self.cost_of_context * (
@@ -188,13 +253,16 @@ class CriticalPathScheduler(Scheduler):
                 -
                 scheduled_task.task.optimistic_task_duration(team.size)
             )
+        # bias the cost function by penalizing doing things later
+        for chunk in all_chunks:
+            cost_function += self.cost_of_procastination * chunk.day_of_work
         m.minimize(cost_function)
         hassol = m.solve()
         if not hassol:
             raise ValueError("No solution found")
         for chunk in all_chunks:
-            chunk.task.daily_engineer_allocation[chunk.day_of_work.value]+=1
-        return Plan(planned_tasks)
+            chunk.task.daily_engineer_allocation[int(chunk.day_of_work.value())]+=1
+        return Plan(planned_tasks, start_date, self.workday_filter)
     
     @classmethod
     def has_circular_dependencies(cls, tasks: List[Task]) -> bool:

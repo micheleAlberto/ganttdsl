@@ -76,24 +76,24 @@ def test_scheduler_detects_circular_dependencies():
 
 def test_schedule_tasks():
     task_a = Task(
-        name="Prototype Design",
+        name="A",
         description="Design the prototype.",
         references=[],
         point_of_contact="Engineer A",
-        effort=10,
+        effort=3,
         parallelization_factor=2
     )
     task_b = Task(
-        name="Build Prototype",
+        name="B",
         description="Build the prototype, depends on Task A.",
         references=[],
         point_of_contact="Engineer B",
-        effort=8,
+        effort=2,
         parallelization_factor=1,
         dependencies={task_a}
     )
     team = Team(name="Engineering Team", size=3)
-    scheduler = CriticalPathScheduler()
+    scheduler = CriticalPathScheduler(cost_of_procastination=1)
     start_date = date(2025, 1, 1)
 
     plan = scheduler.schedule([task_a, task_b], team, start_date)
@@ -103,28 +103,20 @@ def test_schedule_tasks():
     scheduled_task_a = plan.scheduled_tasks[0]
     assert scheduled_task_a.task == task_a
     assert scheduled_task_a.start_date == date(2025, 1, 1)
-    assert scheduled_task_a.end_date == date(2025, 1, 5)
-    assert scheduled_task_a.daily_engineer_allocation == {
+    assert scheduled_task_a.end_date == date(2025, 1, 2)
+    assert scheduled_task_a.date_engineer_allocation == {
         date(2025, 1, 1): 2,
-        date(2025, 1, 2): 2,
-        date(2025, 1, 3): 2,
-        date(2025, 1, 4): 2,
-        date(2025, 1, 5): 2
+        date(2025, 1, 2): 1,
     }
 
     scheduled_task_b = plan.scheduled_tasks[1]
     assert scheduled_task_b.task == task_b
-    assert scheduled_task_b.start_date == date(2025, 1, 6)
-    assert scheduled_task_b.end_date == date(2025, 1, 13)
-    assert scheduled_task_b.daily_engineer_allocation == {
+    assert scheduled_task_b.start_date == date(2025, 1, 3)
+    #because 4 and 5 are weekends
+    assert scheduled_task_b.end_date == date(2025, 1, 6)
+    assert scheduled_task_b.date_engineer_allocation == {
+        date(2025, 1, 3): 1,
         date(2025, 1, 6): 1,
-        date(2025, 1, 7): 1,
-        date(2025, 1, 8): 1,
-        date(2025, 1, 9): 1,
-        date(2025, 1, 10): 1,
-        date(2025, 1, 11): 1,
-        date(2025, 1, 12): 1,
-        date(2025, 1, 13): 1
     }
 
 
