@@ -1,234 +1,291 @@
-## **GanttDSL Tutorial: Writing and Scheduling Gantt Charts in Python**
+# GanttDSL Tutorial
 
-This tutorial will guide you through using GanttDSL to manage, schedule, and visualize software engineering tasks in Python. GanttDSL allows you to write tasks in a literate programming style and output markdown or PlantUML Gantt charts.
+#### Step 1: Define Tasks
 
----
-
-### **1. Installation and Setup**
-
-GanttDSL is implemented in Python. Clone or include the code from the implementation provided. For demonstration purposes, ensure all class definitions (`Task`, `Team`, `PlannedTask`, etc.) are available in your project.
-
----
-
-### **2. Defining Tasks**
-
-A `Task` in GanttDSL includes:
-- A unique name
-- A Markdown-formatted description
-- References (e.g., links to documents)
-- A point of contact
-- An effort estimate in engineer-days
-- A parallelization factor
-- Dependencies on other tasks
-
-#### Example: Defining Tasks
+First, let's define the tasks for our 3-tier project. Each task has a name, description, references, point of contact, effort, parallelization factor, and dependencies.
 
 ```python
-from ganttdsl import Task
-
-# Task 1: Prototype Design
-task_a = Task(
-    name="Prototype Design",
-    description="Design the prototype with detailed requirements.",
-    references=["https://example.com/design-doc"],
-    point_of_contact="Engineer A",
-    effort=10,  # Effort in engineer-days
-    parallelization_factor=2  # Max engineers that can work on this
-)
-
-# Task 2: Build Prototype (depends on Task 1)
-task_b = Task(
-    name="Build Prototype",
-    description="Build the prototype as per the design specifications.",
-    references=["https://example.com/build-doc"],
-    point_of_contact="Engineer B",
-    effort=8,
-    parallelization_factor=1,
-    dependencies={task_a}
-)
-```
-
----
-
-### **3. Defining a Team**
-
-A `Team` specifies the name and number of engineers available.
-
-#### Example: Creating a Team
-
-```python
-from ganttdsl import Team
-
-team = Team(name="Engineering Team", size=3)
-```
-
----
-
-### **4. Scheduling Tasks**
-
-To schedule tasks, use a subclass of `Scheduler`. The `CriticalPathScheduler` prioritizes tasks on the critical path, ensuring efficient project completion.
-
-#### Key Steps:
-1. Initialize the `CriticalPathScheduler`.
-2. Specify a start date for the project.
-3. Call the `schedule` method with tasks, the team, and the start date.
-
-#### Example: Scheduling Tasks
-
-```python
-from ganttdsl import CriticalPathScheduler
 from datetime import date
+from ganttdsl.dsl import Task, Team, CriticalPathScheduler
 
-# Initialize scheduler and start date
+# Define tasks for the 3-tier project
+
+# Web Client Tasks
+task_design_web_client = Task(
+    name="Design Web Client",
+    description="Design the web client interface.",
+    references=["https://example.com/web-client-design"],
+    point_of_contact="Engineer A",
+    effort=5,
+    parallelization_factor=2,
+    dependencies=set()
+)
+
+task_implement_web_client = Task(
+    name="Implement Web Client",
+    description="Implement the web client based on the design.",
+    references=["https://example.com/web-client-implementation"],
+    point_of_contact="Engineer B",
+    effort=10,
+    parallelization_factor=2,
+    dependencies={task_design_web_client}
+)
+
+task_test_web_client = Task(
+    name="Test Web Client",
+    description="Test the web client implementation.",
+    references=["https://example.com/web-client-testing"],
+    point_of_contact="Engineer C",
+    effort=5,
+    parallelization_factor=1,
+    dependencies={task_implement_web_client}
+)
+
+# Web Server Tasks
+task_design_web_server = Task(
+    name="Design Web Server",
+    description="Design the web server architecture.",
+    references=["https://example.com/web-server-design"],
+    point_of_contact="Engineer D",
+    effort=5,
+    parallelization_factor=2,
+    dependencies=set()
+)
+
+task_implement_web_server = Task(
+    name="Implement Web Server",
+    description="Implement the web server based on the design.",
+    references=["https://example.com/web-server-implementation"],
+    point_of_contact="Engineer E",
+    effort=10,
+    parallelization_factor=2,
+    dependencies={task_design_web_server}
+)
+
+task_test_web_server = Task(
+    name="Test Web Server",
+    description="Test the web server implementation.",
+    references=["https://example.com/web-server-testing"],
+    point_of_contact="Engineer F",
+    effort=5,
+    parallelization_factor=1,
+    dependencies={task_implement_web_server}
+)
+
+# Database Tasks
+task_design_database = Task(
+    name="Design Database",
+    description="Design the database schema.",
+    references=["https://example.com/database-design"],
+    point_of_contact="Engineer G",
+    effort=5,
+    parallelization_factor=2,
+    dependencies=set()
+)
+
+task_implement_database = Task(
+    name="Implement Database",
+    description="Implement the database based on the design.",
+    references=["https://example.com/database-implementation"],
+    point_of_contact="Engineer H",
+    effort=10,
+    parallelization_factor=2,
+    dependencies={task_design_database}
+)
+
+task_test_database = Task(
+    name="Test Database",
+    description="Test the database implementation.",
+    references=["https://example.com/database-testing"],
+    point_of_contact="Engineer I",
+    effort=5,
+    parallelization_factor=1,
+    dependencies={task_implement_database}
+)
+
+# Deployment Tasks
+task_deploy_to_production = Task(
+    name="Deploy to Production",
+    description="Deploy the entire system to production.",
+    references=["https://example.com/deployment"],
+    point_of_contact="Engineer J",
+    effort=5,
+    parallelization_factor=2,
+    dependencies={task_test_web_client, task_test_web_server, task_test_database}
+)
+```
+
+#### Step 2: Define the Team
+
+Next, define the team that will work on these tasks. The team has a name and a size (number of engineers).
+
+```python
+# Define the team
+team = Team(name="Engineering Team", size=5)
+```
+
+#### Step 3: Schedule the Tasks
+
+Now, use the `CriticalPathScheduler` to schedule the tasks. The scheduler will take the tasks, team, and start date as input and produce a plan.
+
+```python
+# Create the scheduler
 scheduler = CriticalPathScheduler()
+
+# Define the start date
 start_date = date(2025, 1, 1)
 
-# Schedule tasks
-plan = scheduler.schedule([task_a, task_b], team, start_date)
+# Schedule the tasks
+tasks = [
+    task_design_web_client, task_implement_web_client, task_test_web_client,
+    task_design_web_server, task_implement_web_server, task_test_web_server,
+    task_design_database, task_implement_database, task_test_database,
+    task_deploy_to_production
+]
+plan = scheduler.schedule(tasks, team, start_date)
 ```
 
----
+#### Step 4: Generate Markdown View
 
-### **5. Viewing the Plan**
-
-The `Plan` object generated by the scheduler provides multiple views:
-1. **Markdown View**: A detailed breakdown of the tasks.
-2. **Gantt Chart**: A PlantUML-compatible Gantt chart for visualization.
-
-#### Example: Markdown View
+You can generate a markdown view of the plan to get a detailed and organized representation of the scheduled tasks.
 
 ```python
+# Generate markdown view
 markdown = plan.get_markdown_view()
 print(markdown)
 ```
 
-**Output:**
-```
-### Prototype Design
-**Description:** Design the prototype with detailed requirements.
-**References:** https://example.com/design-doc
-**Point of Contact:** Engineer A
-**Effort:** 10 engineer-days
-**Parallelization Factor:** 2
-**Dependencies:** 
-**Planned Start Date:** 2025-01-01
-**Planned End Date:** 2025-01-07
+The output will look like this:
 
-### Build Prototype
-**Description:** Build the prototype as per the design specifications.
-**References:** https://example.com/build-doc
-**Point of Contact:** Engineer B
-**Effort:** 8 engineer-days
-**Parallelization Factor:** 1
-**Dependencies:** Prototype Design
-**Planned Start Date:** 2025-01-08
-**Planned End Date:** 2025-01-17
+```markdown
+# Project Plan
+
+## Design Web Client
+Design the web client interface.
+
+**Effort**: 5 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer A
+**References**: https://example.com/web-client-design
+**Dependencies**: 
+
+## Implement Web Client
+Implement the web client based on the design.
+
+**Effort**: 10 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer B
+**References**: https://example.com/web-client-implementation
+**Dependencies**: Design Web Client
+
+## Test Web Client
+Test the web client implementation.
+
+**Effort**: 5 days
+**Parallelization Factor**: 1
+**Point of Contact**: Engineer C
+**References**: https://example.com/web-client-testing
+**Dependencies**: Implement Web Client
+
+## Design Web Server
+Design the web server architecture.
+
+**Effort**: 5 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer D
+**References**: https://example.com/web-server-design
+**Dependencies**: 
+
+## Implement Web Server
+Implement the web server based on the design.
+
+**Effort**: 10 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer E
+**References**: https://example.com/web-server-implementation
+**Dependencies**: Design Web Server
+
+## Test Web Server
+Test the web server implementation.
+
+**Effort**: 5 days
+**Parallelization Factor**: 1
+**Point of Contact**: Engineer F
+**References**: https://example.com/web-server-testing
+**Dependencies**: Implement Web Server
+
+## Design Database
+Design the database schema.
+
+**Effort**: 5 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer G
+**References**: https://example.com/database-design
+**Dependencies**: 
+
+## Implement Database
+Implement the database based on the design.
+
+**Effort**: 10 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer H
+**References**: https://example.com/database-implementation
+**Dependencies**: Design Database
+
+## Test Database
+Test the database implementation.
+
+**Effort**: 5 days
+**Parallelization Factor**: 1
+**Point of Contact**: Engineer I
+**References**: https://example.com/database-testing
+**Dependencies**: Implement Database
+
+## Deploy to Production
+Deploy the entire system to production.
+
+**Effort**: 5 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer J
+**References**: https://example.com/deployment
+**Dependencies**: Test Web Client, Test Web Server, Test Database
 ```
 
-#### Example: Gantt Chart View
+#### Step 5: Generate Gantt Chart
+
+You can also generate a Gantt chart view of the plan to visualize the project timeline.
 
 ```python
+# Generate Gantt chart
 gantt_chart = plan.get_gantt_chart()
 print(gantt_chart)
 ```
 
-**Output:**
+The output will look like this:
+
 ```plantuml
 @startgantt
-[Prototype Design] requires 10 days
-[Prototype Design] starts 2025-01-01
-[Build Prototype] requires 8 days
-[Build Prototype] starts 2025-01-08
+[Design Web Client] requires 5 days
+[Implement Web Client] requires 10 days
+[Test Web Client] requires 5 days
+[Design Web Server] requires 5 days
+[Implement Web Server] requires 10 days
+[Test Web Server] requires 5 days
+[Design Database] requires 5 days
+[Implement Database] requires 10 days
+[Test Database] requires 5 days
+[Deploy to Production] requires 5 days
+
+Project starts 2025-01-01
+[Design Web Client] starts 2025-01-01
+[Implement Web Client] starts 2025-01-06
+[Test Web Client] starts 2025-01-16
+[Design Web Server] starts 2025-01-01
+[Implement Web Server] starts 2025-01-06
+[Test Web Server] starts 2025-01-16
+[Design Database] starts 2025-01-01
+[Implement Database] starts 2025-01-06
+[Test Database] starts 2025-01-16
+[Deploy to Production] starts 2025-01-21
 @endgantt
 ```
-
----
-
-### **6. Customizing Non-Working Days**
-
-By default, GanttDSL skips weekends. To customize non-working days, override the `workday_filter` in the `Scheduler`.
-
-#### Example: Customizing the Workday Filter
-
-```python
-from ganttdsl import CriticalPathScheduler
-
-scheduler = CriticalPathScheduler()
-
-# Define custom filter (e.g., skipping public holidays)
-def custom_workday_filter(day: date) -> bool:
-    # Assume January 2nd is a holiday
-    holidays = {date(2025, 1, 2)}
-    return day.weekday() < 5 and day not in holidays
-
-scheduler.workday_filter = custom_workday_filter
-```
-
----
-
-### **7. Handling Circular Dependencies**
-
-If tasks have circular dependencies, the scheduler will raise an exception. For example:
-
-```python
-task_c = Task(
-    name="Circular Task",
-    description="This task depends on itself.",
-    references=[],
-    point_of_contact="Engineer C",
-    effort=5,
-    parallelization_factor=1,
-    dependencies={task_b}  # Circular dependency
-)
-task_b.dependencies.add(task_c)  # Adds a back-reference to create a cycle
-```
-
-This will raise:
-```
-ValueError: Circular dependencies detected in tasks
-```
-
----
-
-### **8. Full Example**
-
-```python
-from ganttdsl import Task, Team, CriticalPathScheduler
-from datetime import date
-
-# Define tasks
-task_a = Task(
-    name="Prototype Design",
-    description="Design the prototype with detailed requirements.",
-    references=["https://example.com/design-doc"],
-    point_of_contact="Engineer A",
-    effort=10,
-    parallelization_factor=2
-)
-
-task_b = Task(
-    name="Build Prototype",
-    description="Build the prototype as per the design specifications.",
-    references=["https://example.com/build-doc"],
-    point_of_contact="Engineer B",
-    effort=8,
-    parallelization_factor=1,
-    dependencies={task_a}
-)
-
-# Define team
-team = Team(name="Engineering Team", size=3)
-
-# Initialize scheduler
-scheduler = CriticalPathScheduler()
-start_date = date(2025, 1, 1)
-
-# Schedule tasks
-plan = scheduler.schedule([task_a, task_b], team, start_date)
-
-# View plan
-print(plan.get_markdown_view())
-print(plan.get_gantt_chart())
-```
-
----
