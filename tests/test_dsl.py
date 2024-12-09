@@ -144,11 +144,27 @@ def test_markdown_view():
 
     plan = scheduler.schedule([task_a, task_b], team, start_date)
     markdown = plan.get_markdown_view()
-    assert "### Prototype Design" in markdown
-    assert "**Effort:** 10 engineer-days" in markdown
-    assert "**Dependencies:** " in markdown  # Task A has no dependencies
-    assert "### Build Prototype" in markdown
-    assert "**Dependencies:** Prototype Design" in markdown
+    assert markdown =="""# Project Plan
+
+## Prototype Design
+Design the prototype.
+
+**Effort**: 10 days
+**Parallelization Factor**: 2
+**Point of Contact**: Engineer A
+**References**: https://example.com/design-doc
+**Dependencies**: 
+
+## Build Prototype
+Build the prototype, depends on Task A.
+
+**Effort**: 8 days
+**Parallelization Factor**: 1
+**Point of Contact**: Engineer B
+**References**: https://example.com/build-doc
+**Dependencies**: Prototype Design
+
+"""
 
 
 def test_gantt_chart_view():

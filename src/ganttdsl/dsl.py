@@ -1,12 +1,22 @@
 from collections import defaultdict, deque
-from dataclasses import dataclass
+from  dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, List, Set, Optional, Callable, Dict
 import cpmpy as cp
 
-
-
 class Task:
+    """
+    Represents a task in the project.
+
+    Attributes:
+        name (str): The name of the task.
+        description (str): Ad markdown formatted description of the task.
+        references (List[str]): Links to references related to the task.
+        point_of_contact (str): The engineer responsible for the task.
+        effort (int): The number ofo days one engineer would take to complete the task.
+        parallelization_factor (int): The number of engineers that can work concurrently on the task.
+        dependencies (Optional[Set["Task"]]): A set of tasks that this task depends on.
+    """
     def __init__(self, name: str, description: str, references: List[str], point_of_contact: str,
                  effort: int, parallelization_factor: int, dependencies: Optional[Set["Task"]] = None):
         if not name:
@@ -21,28 +31,65 @@ class Task:
         self.parallelization_factor = parallelization_factor
         self.dependencies = dependencies or set()
         self.validate()
+
     def __repr__(self):
+        """
+        Returns a string representation of the task.
+        """
         return (f"Task(name={self.name}, description={self.description}, "
                 f"references={self.references}, point_of_contact={self.point_of_contact}, "
                 f"effort={self.effort}, parallelization_factor={self.parallelization_factor}, "
                 f"dependencies={[dep.name for dep in self.dependencies]})")
+
     def validate(self):
+        """
+        Validates the task attributes.
+        """
         if self.effort <= 0:
             raise ValueError("Effort must be a positive integer")
         if self.parallelization_factor <= 0:
             raise ValueError("Parallelization factor must be a positive integer")
 
     def __hash__(self):
+        """
+        Returns the hash of the task based on its name.
+        """
         return hash(self.name)
 
     def __eq__(self, other):
+        """
+        Checks if two tasks are equal based on their names.
+
+        Args:
+            other (Task): The other task to compare with.
+
+        Returns:
+            bool: True if the tasks have the same name, False otherwise.
+        """
         return isinstance(other, Task) and self.name == other.name
     
-    def optimistic_task_duration(self, max_available_engineers:int) -> int:
+    def optimistic_task_duration(self, max_available_engineers: int) -> int:
+        """
+        Calculates the optimistic duration of the task based on the maximum available engineers.
+
+        Args:
+            max_available_engineers (int): The maximum number of engineers available.
+
+        Returns:
+            int: The optimistic duration of the task in days.
+        """
+        # The duration is calculated by dividing the effort by the minimum of the available engineers and the parallelization factor.
         return self.effort // min(max_available_engineers, self.parallelization_factor)
 
 
 class Team:
+    """
+    Represents a team of engineers.
+
+    Attributes:
+        name (str): The name of the team.
+        size (int): The number of engineers in the team.
+    """
     def __init__(self, name: str, size: int):
         if size <= 0:
             raise ValueError("Team size must be a positive integer")
@@ -51,11 +98,21 @@ class Team:
 
 
 class ScheduledTask:
+    """
+    Represents a scheduled task with start and end dates, and the allocation of engineers on each day.
+
+    Attributes:
+        task (Task): The task being scheduled.
+        start_date (date|None): The start date of the task as an integer
+        end_date (date|None): The end date of the task as an integer
+        daily_engineer_allocation (Dict[int, int]): A dictionary tracking engineer allocation per day.
+    """
     def __init__(self, task: Task) -> None:
         self.task = task
-        self.daily_engineer_allocation : dict[int, int] = defaultdict(int)
         # daily_engineer_allocation[t] == n means that n engineers are allocated to the task on day t
-        self._days_to_date : dict[int, date]|None = None
+        self.daily_engineer_allocation: Dict[int, int] = defaultdict(int)
+        self._days_to_date: Optional[Dict[int, date]] = None
+
     @property
     def start_day(self) -> int|None:
         start_date = None
@@ -91,13 +148,18 @@ class ScheduledTask:
         if self._days_to_date is None:
             return {}
         return {self._days_to_date[day]: engineers for day, engineers in self.daily_engineer_allocation.items()}
-    def set_days_to_date_conversion(self, days_to_date: dict[int, date]) -> None:
+    def _set_days_to_date_conversion(self, days_to_date: dict[int, date]) -> None:
         self._days_to_date = days_to_date
     def __repr__(self):
         return f"ScheduledTask(task={self.task.name})"
 
 
 class Plan:
+    """Represents the plan for the project, containing all scheduled tasks.
+
+    Attributes:
+        scheduled_tasks (List[ScheduledTask]): A list of scheduled tasks.
+    """
     def __init__(self, scheduled_tasks: List[ScheduledTask], start_date: date, workday_filter: Callable[[date], bool]) -> None:
         self.scheduled_tasks = scheduled_tasks
         total_days = max(scheduled_task.end_day or 0 for scheduled_task in scheduled_tasks)
@@ -110,41 +172,82 @@ class Plan:
                 current_date += timedelta(days=1)
         self.days_to_date = days_to_date
         for scheduled_task in self.scheduled_tasks:
-            scheduled_task.set_days_to_date_conversion(days_to_date)
-            
+            scheduled_task._set_days_to_date_conversion(days_to_date)
+
     def get_markdown_view(self) -> str:
-        output = []
+        """
+        Returns a markdown representation of the plan.
+
+        Returns:
+            str: The markdown view of the plan.
+        """
+        markdown = "# Project Plan\n\n"
         for scheduled_task in self.scheduled_tasks:
             task = scheduled_task.task
-            output.append(f"### {task.name}")
-            output.append(f"**Description:** {task.description}")
-            output.append(f"**References:** {' '.join(task.references)}")
-            output.append(f"**Point of Contact:** {task.point_of_contact}")
-            output.append(f"**Effort:** {task.effort} engineer-days")
-            output.append(f"**Parallelization Factor:** {task.parallelization_factor}")
-            output.append(f"**Dependencies:** {', '.join(dep.name for dep in task.dependencies)}")
-            output.append(f"**Planned Start Date:** {scheduled_task.start_date}")
-            output.append(f"**Planned End Date:** {scheduled_task.end_date}")
-            output.append(f"**Daily Engineer Allocation:**")
-            for day, engineers in scheduled_task.daily_engineer_allocation.items():
-                output.append(f"  - {day}: {engineers} engineers")
-            output.append("\n")
-        return "\n".join(output)
+            markdown += f"## {task.name}\n"
+            markdown += f"{task.description}\n\n"
+            markdown += f"**Effort**: {task.effort} days\n"
+            markdown += f"**Parallelization Factor**: {task.parallelization_factor}\n"
+            markdown += f"**Point of Contact**: {task.point_of_contact}\n"
+            markdown += f"**References**: {', '.join(task.references)}\n"
+            markdown += f"**Dependencies**: {', '.join(dep.name for dep in task.dependencies)}\n\n"
+        return markdown
 
     def get_gantt_chart(self) -> str:
-        gantt = ["@startgantt"]
+        """
+        Returns a Gantt chart representation of the plan.
+
+        Returns:
+            str: The Gantt chart view of the plan.
+        """
+        gantt_chart = "@startgantt\n"
         for scheduled_task in self.scheduled_tasks:
-            gantt.append(f"[{scheduled_task.task.name}] requires {scheduled_task.task.effort} days")
-            gantt.append(f"[{scheduled_task.task.name}] starts {scheduled_task.start_date}")
-        gantt.append("@endgantt")
-        return "\n".join(gantt)
+            task = scheduled_task.task
+            gantt_chart += f"[{task.name}] requires {task.effort} days\n"
+            gantt_chart += f"[{task.name}] starts {scheduled_task.start_date}\n"
+        gantt_chart += "@endgantt\n"
+        return gantt_chart
 
 
 class Scheduler:
+    """
+    Base class for scheduling tasks.
+    """
     def __init__(self, workday_filter: Callable[[date], bool] = lambda d: d.weekday() < 5):
         self.workday_filter = workday_filter
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
         raise NotImplementedError("Subclasses must implement the scheduling algorithm")
+    @classmethod
+    def has_circular_dependencies(cls, tasks: List[Task]) -> bool:
+        """
+        Checks for circular dependencies among tasks.
+
+        Args:
+            tasks (List[Task]): A list of tasks to check.
+
+        Returns:
+            bool: True if there are circular dependencies, False otherwise.
+        """
+        visited = set()
+
+        def dfs(task, ancestors):
+            if task in ancestors:
+                return True
+            if task in visited:
+                return False
+            visited.add(task)
+            ancestors.add(task)
+            for dep in task.dependencies:
+                if dfs(dep, ancestors):
+                    return True
+            ancestors.remove(task)
+            return False
+
+        for task in tasks:
+            if dfs(task, set()):
+                return True
+
+        return False
 
     def calculate_absolute_dates(self, start_date: date, total_days_of_work:int) -> dict[int, date]:
         absolute_dates = {}
@@ -174,6 +277,22 @@ class ChunkOfWork:
     
     
 class CriticalPathScheduler(Scheduler):
+    """
+    A scheduler that always schedules the tasks on the critical path first.
+
+    The CriticalPathScheduler prioritizes tasks that are on the critical path, which is the longest path from the start to the end of the project. This ensures that any delay in these tasks will directly impact the project's completion time.
+
+    The cost function has 3 components:
+    - time : number of days to complete the project
+    - context : number of days a task is in active state beyond the minimum required to complete that task
+    - procastination : penalizes doing things later by applying quadratic costs to the days of work
+    Costs:
+    - **Time Complexity**: The scheduling process involves topological sorting and resource allocation, which can be computationally intensive for large projects with many tasks and dependencies.
+    - **Resource Utilization**: The scheduler aims to maximize the utilization of available engineering resources, which may lead to higher resource allocation in critical tasks, potentially leaving fewer resources for non-critical tasks.
+
+    Methods:
+        schedule(tasks: List[Task], team: Team, start_date: date) -> Plan: Schedules the tasks based on dependencies and resource availability.
+    """
     def __init__(self, 
             max_days:int=100,
             cost_of_time:int=100,
@@ -189,6 +308,17 @@ class CriticalPathScheduler(Scheduler):
         self.debug_mode = False
         
     def schedule(self, tasks: List[Task], team: Team, start_date: date) -> Plan:
+        """
+        Schedules the tasks based on dependencies and resource availability.
+
+        Args:
+            tasks (List[Task]): A list of tasks to schedule.
+            team (Team): The team of engineers.
+            start_date (date): The start date of the project.
+
+        Returns:
+            Plan: The plan containing the scheduled tasks.
+        """
         if self.has_circular_dependencies(tasks):
             raise CircularDependencyError("Tasks have circular dependencies")
         planned_tasks = [ScheduledTask(task) for task in tasks]
@@ -264,25 +394,4 @@ class CriticalPathScheduler(Scheduler):
             chunk.task.daily_engineer_allocation[int(chunk.day_of_work.value())]+=1
         return Plan(planned_tasks, start_date, self.workday_filter)
     
-    @classmethod
-    def has_circular_dependencies(cls, tasks: List[Task]) -> bool:
-        visited = set()
-
-        def dfs(task, ancestors):
-            if task in ancestors:
-                return True
-            if task in visited:
-                return False
-            visited.add(task)
-            ancestors.add(task)
-            for dep in task.dependencies:
-                if dfs(dep, ancestors):
-                    return True
-            ancestors.remove(task)
-            return False
-
-        for task in tasks:
-            if dfs(task, set()):
-                return True
-
-        return False
+    
